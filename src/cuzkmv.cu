@@ -5,10 +5,40 @@
   
   input:
     
-    nspin,          , , number of bodies;
+    nspin,                  integer, 
+                            number of total spins;
+    nTerm,                  integer, 
+                            number of Hamiltonian terms;
+    coeff_lst[ nTerm ],     double, 
+                            coefficient list in each term;
+    nbody_lst[ nTerm ],     size_t, 
+                            spin number in each term;
+    pos_idx,                size_t, 
+                            total length of spin position list, the same as
+                            sum of nbody_lst;
+    pos_i_idx[ nTerm ],     size_t, 
+                            offset of the spin position list;
+    pos_i_lst[ pos_idx ],   size_t, 
+                            spin position list;
+    dim_i_lst[ pos_idx ],   size_t,
+                            spin dimension list;
+    mat_idx,                size_t, 
+                            total length of the spin operator list;
+    mat_i_idx[ pos_idx ],   size_t, 
+                            offset of the spin operator list;
+    mat_i_lst[ mat_idx ],          complex<double>, 
+                            spin operator list;
+    vlen,                   size_t, 
+                            length of the state vector;
+    v[ vlen ],              complex<double>, 
+                            input state vector;
+    nspin_dim[ nspin ],     size_t, 
+                            list of spin dimension;
     
   output:
     
+    w[ vlen ],              complex<double>, 
+                            output state vector;
 */
 
 #include <iostream>

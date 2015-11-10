@@ -26,6 +26,9 @@ cuda: all $(SAMPLE_DIR)/main_cuda.cu
 mkl: all $(SAMPLE_DIR)/main_mkl.cu
 	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/main_mkl.cu $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/mkl.x
 
+cuzkmv: all $(SAMPLE_DIR)/main_cuzkmv.cu
+	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/main_cuzkmv.cu $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/cuzkmv.x
+
 all: $(SUBDIRS) $(CUDA_OBJS)
 
 $(SUBDIRS): ECHO
