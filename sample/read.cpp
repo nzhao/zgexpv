@@ -26,7 +26,7 @@ int main ()
 //////////////////////////////////////////////////////////////////////////
 //read Matrix
 
-    ifstream file ("DipolarDynamics_mat.dat", ios::in|ios::binary);
+    ifstream file ("Data_DipolarDynamics_20151110_115006.dat", ios::in|ios::binary);
     
     total_nbody = 0; total_dim = 0; nSpin = 0; nTerm = 0; nDim = 0;
     file.read ((char *)&nSpin, sizeof(size_t) );
@@ -70,10 +70,8 @@ int main ()
     for(i=0; i<total_dim; i++)
         matC[i] = complex<double> ( matR[i], matI[i] );
 
-    file.close();
-
-//////////////////////////////////////////////////////////////////////////
-//read vector
+    //////////////////////////////////////////////////////////////////////////
+    //read vector
 
     double * vecR, * vecI;
     complex<double> * vecC;
@@ -82,25 +80,21 @@ int main ()
     vecI = new double [nDim];
     vecC = new complex<double> [ nDim ];
 
-    ifstream fileVect ("DipolarDynamics_vec.dat", ios::in|ios::binary);
-    fileVect.read((char *) vecR, nDim*sizeof(double));
-    fileVect.read((char *) vecI, nDim*sizeof(double));
-    fileVect.close();
+    file.read((char *) vecR, nDim*sizeof(double));
+    file.read((char *) vecI, nDim*sizeof(double));
 
     for ( i = 0; i < nDim; i++ )
         vecC[i] = complex<double>( vecR[i], vecI[i] );
 
-//////////////////////////////////////////////////////////////////////////
-//read time seq
+    //////////////////////////////////////////////////////////////////////////
+    //read time seq
 
     size_t nt=0;
     double * tlist;
-    ifstream fileTime ("DipolarDynamics_time.dat", ios::in|ios::binary);
-    fileTime.read((char *) &nt, sizeof(size_t));
+    file.read((char *) &nt, sizeof(size_t));
 
     tlist = new double [nt];
-    fileTime.read((char *) tlist, nt*sizeof(double));
-    fileTime.close();
+    file.read((char *) tlist, nt*sizeof(double));
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Expv computation
@@ -119,6 +113,11 @@ int main ()
 
     ofstream result("res_file.dat", ios::binary);
     double * w_seq_dbl = new double [w_seq_len];
+
+    cout << nDim << "exported." << endl;
+    result.write((char *)&nDim, sizeof(size_t));
+    result.write((char *)&nt,   sizeof(size_t));
+    cout << nt  << "exported." << endl;
 
     for ( i = 0; i < w_seq_len; i++ )
         w_seq_dbl[i] = w_seq[i].real();
