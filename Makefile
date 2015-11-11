@@ -1,58 +1,133 @@
 ########################################################################
-#Makefile for main directory
+
+NCC           := nvcc
+NCFLAGS       := -arch=sm_30 -O3 -DCUBLAS_GFORTRAN -Xcompiler "-DMKL_ILP64 -fopenmp -m64 -I${MKLROOT}/include" -L/usr/local/cuda/lib64 -lcudart -lcublas -lcusparse
+NCLINKER      := -Xlinker "-lgfortran -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_gnu_thread -ldl -lpthread -lm"
+
+FC            := gfortran
+FFLAGS        := -O3 -fdefault-integer-8 -fopenmp -m64 -I${MKLROOT}/include
+FLINKER       := -lc -lstdc++ -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_gf_ilp64.a ${MKLROOT}/lib/intel64/libmkl_core.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a -Wl,--end-group -ldl -lpthread -lm -L/usr/local/cuda/lib64 -lcudart -lcublas -lcusparse
+
 ########################################################################
 
-CUDA_DIR      = /usr/local/cuda
+CUDA_DIR      := /usr/local/cuda
+ROOT_DIR      := $(shell pwd)
 
-CUDA_OBJS     = fortran.o cusparse_fortran.o
+SRC_DIR       := $(ROOT_DIR)/src
+OBJ_DIR       := $(ROOT_DIR)/obj
+BIN_DIR       := $(ROOT_DIR)/bin
 
-SAMPLE_DIR    = sample
+CUDAAPI_SRC   := fortran.c cusparse_fortran.c
 
-SUBDIRS       = $(shell ls -l | grep ^d | awk '($$9 != "debug")&&($$9 != "data")&&($$9 != "sample") {print $$9}')
+EXPOKIT_SRC   := expokit.f mataid.f DLARAN.f
+GPU_C_SRC     := hamvec_cuda3.cu
+GPU_F_SRC     := hamvec_zgexpv_w_cuda_profile.f main_cuda.f
+CPU_C_SRC     := hamvec_func3.cpp
+CPU_F_SRC     := hamvec_zgexpv_w_mkl_profile.f main_mkl.f
 
-ROOT_DIR      = $(shell pwd)
+EXPOKIT_DIR   := $(SRC_DIR)/expokit
+GPU_DIR       := $(SRC_DIR)/gpu
+CPU_DIR       := $(SRC_DIR)/cpu
+ZKMV_DIR      := $(SRC_DIR)/zkmv
 
-OBJS_DIR      = debug/obj
+########################################################################
 
-BIN_DIR       = debug/bin
+CUDAAPI_LIST  := $(addprefix $(CUDA_DIR)/src/,$(CUDAAPI_SRC))
+EXPOKIT_LIST  := $(addprefix $(SRC_DIR)/expokit/,$(EXPOKIT_SRC))
+GPU_C_LIST    := $(addprefix $(SRC_DIR)/gpu/,$(GPU_C_SRC))
+GPU_F_LIST    := $(addprefix $(SRC_DIR)/gpu/,$(GPU_F_SRC))
+CPU_C_LIST    := $(addprefix $(SRC_DIR)/cpu/,$(CPU_C_SRC))
+CPU_F_LIST    := $(addprefix $(SRC_DIR)/cpu/,$(CPU_F_SRC))
 
-export CC BIN OBJS_DIR BIN_DIR ROOT_DIR
+CUDAAPI_OBJ   := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(CUDAAPI_SRC)))
+EXPOKIT_OBJ   := $(addprefix $(OBJ_DIR)/,$(patsubst %.f,%.o,$(EXPOKIT_SRC)))
+GPU_C_OBJ     := $(addprefix $(OBJ_DIR)/,$(patsubst %.cu,%.o,$(GPU_C_SRC)))
+GPU_F_OBJ     := $(addprefix $(OBJ_DIR)/,$(patsubst %.f,%.o,$(GPU_F_SRC)))
+CPU_C_OBJ     := $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(CPU_C_SRC)))
+CPU_F_OBJ     := $(addprefix $(OBJ_DIR)/,$(patsubst %.f,%.o,$(CPU_F_SRC)))
 
-include $(ROOT_DIR)/makefile_compiler.inc
+GPU_OBJ       := $(CUDAAPI_OBJ) $(EXPOKIT_OBJ) $(GPU_C_OBJ) $(GPU_F_OBJ) $(OBJ_DIR)/evolution_gpu.o $(OBJ_DIR)/para.o
 
-cuda: all $(SAMPLE_DIR)/main_cuda.cu
-	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/main_cuda.cu $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/cuda.x
+CPU_OBJ       := $(CUDAAPI_OBJ) $(EXPOKIT_OBJ) $(CPU_C_OBJ) $(CPU_F_OBJ) $(OBJ_DIR)/evolution_cpu.o $(OBJ_DIR)/para.o
 
-mkl: all $(SAMPLE_DIR)/main_mkl.cu
-	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/main_mkl.cu $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/mkl.x
+echo: $(OBJ_DIR)/cusparse_fortran.o
+	@echo $(EXPOKIT_SRC)
+	@echo $(EXPOKIT_LIST)
+	@echo $(EXPOKIT_OBJ)
+	@echo $(CUDAAPI_SRC)
+	@echo $(CUDAAPI_LIST)
+	@echo $(CUDAAPI_OBJ)
+	@echo $(GPU_OBJ)
 
-<<<<<<< HEAD
-cuzkmv: all $(SAMPLE_DIR)/main_cuzkmv.cu
-	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/main_cuzkmv.cu $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/cuzkmv.x
-=======
-newCUDA: all $(SAMPLE_DIR)/read.cpp
-	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/read.cpp $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/newCUDA.x
+gpu: $(GPU_OBJ) | $(BIN_DIR)
+	@$(NCC) $(NCFLAGS) $(GPU_OBJ) $(NCLINKER) -o $(BIN_DIR)/gpu.x
 
-evo: all $(ROOT_DIR)/api/evolution.cpp
-	@$(NCC) $(NCFLAGS) $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/api/evo.x
->>>>>>> upstream/master
+cpu: $(CPU_OBJ) | $(BIN_DIR)
+	@$(NCC) $(NCFLAGS) $(CPU_OBJ) $(NCLINKER) -o $(BIN_DIR)/cpu.x
 
-all: $(SUBDIRS) $(CUDA_OBJS)
+$(GPU_OBJ): | $(OBJ_DIR)
 
-$(SUBDIRS): ECHO
-	@make -C $@
+$(CPU_OBJ): | $(OBJ_DIR)
 
-ECHO:
-	@echo $(SUBDIRS)
+$(OBJ_DIR)/cusparse_fortran.o: $(CUDA_DIR)/src/cusparse_fortran.c
+	$(NCC) $(NCFLAGS) $< -c -o $@
 
-$(CUDA_OBJS): %.o: $(CUDA_DIR)/src/%.c
-	@$(NCC) $(NCFLAGS) -c $^ -o $(ROOT_DIR)/$(OBJS_DIR)/$@
+$(OBJ_DIR)/fortran.o: $(CUDA_DIR)/src/fortran.c
+	$(NCC) $(NCFLAGS) $< -c -o $@
 
-.PHONY: clean
+$(OBJ_DIR)/expokit.o: $(EXPOKIT_DIR)/expokit.f
+	$(FC) $(FFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/mataid.o: $(EXPOKIT_DIR)/mataid.f
+	$(FC) $(FFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/DLARAN.o: $(EXPOKIT_DIR)/DLARAN.f
+	$(FC) $(FFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/hamvec_cuda3.o: $(GPU_DIR)/hamvec_cuda3.cu
+	$(NCC) $(NCFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/hamvec_zgexpv_w_cuda_profile.o: $(GPU_DIR)/hamvec_zgexpv_w_cuda_profile.f
+	$(FC) $(FFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/main_cuda.o: $(GPU_DIR)/main_cuda.f
+	$(FC) $(FFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/evolution_gpu.o: $(SRC_DIR)/evolution_gpu.cpp
+	$(NCC) $(NCFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/para.o: $(SRC_DIR)/para.cpp
+	$(NCC) $(NCFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/hamvec_func3.o: $(CPU_DIR)/hamvec_func3.cpp
+	$(NCC) $(NCFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/hamvec_zgexpv_w_mkl_profile.o: $(CPU_DIR)/hamvec_zgexpv_w_mkl_profile.f
+	$(FC) $(FFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/main_mkl.o: $(CPU_DIR)/main_mkl.f
+	$(FC) $(FFLAGS) $< -c -o $@
+
+$(OBJ_DIR)/evolution_cpu.o: $(SRC_DIR)/evolution_cpu.cpp
+	$(NCC) $(NCFLAGS) $< -c -o $@
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+.PHONY: clean clean-gpu clean-cpu
 
 clean:
-	@rm -f $(OBJS_DIR)/*.o
-	@rm -f $(BIN_DIR)/*.x
-	@rm -f $(ROOT_DIR)/api/evo.x
-########################################################################
+	@rm -rf $(OBJ_DIR)
+	@rm -rf $(BIN_DIR)
+
+clean-gpu:
+	@rm -f $(GPU_OBJ)
+	@rm -f $(BIN_DIR)/gpu.x
+
+clean-cpu:
+	@rm -f $(CPU_OBJ)
+	@rm -f $(BIN_DIR)/cpu.x
 

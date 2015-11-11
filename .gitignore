@@ -1,12 +1,3 @@
-debug/
-debug/bin/
-debug/obj/
-<<<<<<< HEAD
-data/
-=======
+bin/
+obj/
 
-*.dat
-
-*.swp
-*.x
->>>>>>> upstream/master
