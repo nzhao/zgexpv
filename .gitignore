@@ -1,4 +1,12 @@
 debug/
 debug/bin/
 debug/obj/
+<<<<<<< HEAD
 data/
+=======
+
+*.dat
+
+*.swp
+*.x
+>>>>>>> upstream/master
