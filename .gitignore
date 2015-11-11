@@ -1,3 +1,7 @@
 debug/
 debug/bin/
 debug/obj/
+
+*.dat
+
+*.swp

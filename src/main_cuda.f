@@ -55,7 +55,8 @@
 *
 *---  Set input arguments ...
 *      
-      
+      write(*,*) nspin, nTerm, ham_dim, pos_idx, mat_idx, k, tn, m,
+     . w_seq_len
       n = ham_dim;
       
       lwsp = n*(mmax+2)+5*(mmax+2)**2+7
@@ -92,43 +93,42 @@
       
       !=================================================================
       
-!      print 9003,'nstep     =',iwsp(4)
-!*---  
-!      print 9001,'----------------------------------------------------'
-!      print 9001,'ZGEXPV has completed:'
-!      print 9001,'----------------------------------------------------'
-!!      print 9001,'w(1:10) ='
-!!      do i = 1,10
-!!         print *, w(i)
-!!      enddo
-!*---  display some statistics if desired ...
-!      print 9001,'final report----------------------------------------'
-!!      print 9002,'runtime   = ',tac-tic
-!      print 9002,'||A||_inf = ',anorm
-!!      print 9003,'nz        =',nz
-!      print 9003,'n         =',n
-!      print 9003,'m         =',m
-!      print 9003,'itrace    =',itrace
-!      print 9003,'iflag     =',iflag
-!      print 9003,'ibrkflag  =',iwsp(6)
-!      print 9003,'mbrkdwn   =',iwsp(7)
-!      print 9003,'nstep     =',iwsp(4)
-!      print 9003,'nreject   =',iwsp(5)
-!      print 9003,'nmult     =',iwsp(1)
-!      print 9003,'nexph     =',iwsp(2)
-!      print 9003,'nscale    =',iwsp(3)
-
-!      print 9002,'tol       = ',tol
-!      print 9002,'t         = ',t
-!      print 9002,'tbrkdwn   = ',DBLE( wsp(7) )
-!      print 9002,'step_min  = ',DBLE( wsp(1) )
-!      print 9002,'step_max  = ',DBLE( wsp(2) )
-!      print 9002,'max_round = ',DBLE( wsp(3) )
-!      print 9002,'sum_round = ',DBLE( wsp(4) )
-!      print 9002,'max_error = ',DBLE( wsp(5) )
-!      print 9002,'sum_error = ',DBLE( wsp(6) )
-!      print 9002,'hump      = ',DBLE( wsp(9) )
-!      print 9002,'scale-norm= ',DBLE( wsp(10) )
+      print 9003,'nstep     =',iwsp(4)
+*---  
+      print 9001,'----------------------------------------------------'
+      print 9001,'ZGEXPV has completed:'
+      print 9001,'----------------------------------------------------'
+!      print 9001,'w(1:10) ='
+!      do i = 1,10
+!         print *, w(i)
+!      enddo
+*---  display some statistics if desired ...
+      print 9001,'final report----------------------------------------'
+!      print 9002,'runtime   = ',tac-tic
+      print 9002,'||A||_inf = ',anorm
+!      print 9003,'nz        =',nz
+      print 9003,'n         =',n
+      print 9003,'m         =',m
+      print 9003,'itrace    =',itrace
+      print 9003,'iflag     =',iflag
+      print 9003,'ibrkflag  =',iwsp(6)
+      print 9003,'mbrkdwn   =',iwsp(7)
+      print 9003,'nstep     =',iwsp(4)
+      print 9003,'nreject   =',iwsp(5)
+      print 9003,'nmult     =',iwsp(1)
+      print 9003,'nexph     =',iwsp(2)
+      print 9003,'nscale    =',iwsp(3)
+      print 9002,'tol       = ',tol
+      print 9002,'t         = ',t
+      print 9002,'tbrkdwn   = ',DBLE( wsp(7) )
+      print 9002,'step_min  = ',DBLE( wsp(1) )
+      print 9002,'step_max  = ',DBLE( wsp(2) )
+      print 9002,'max_round = ',DBLE( wsp(3) )
+      print 9002,'sum_round = ',DBLE( wsp(4) )
+      print 9002,'max_error = ',DBLE( wsp(5) )
+      print 9002,'sum_error = ',DBLE( wsp(6) )
+      print 9002,'hump      = ',DBLE( wsp(9) )
+      print 9002,'scale-norm= ',DBLE( wsp(10) )
       
  9001 format(A)
  9002 format(A,E9.2)

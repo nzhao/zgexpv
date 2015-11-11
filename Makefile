@@ -26,6 +26,12 @@ cuda: all $(SAMPLE_DIR)/main_cuda.cu
 mkl: all $(SAMPLE_DIR)/main_mkl.cu
 	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/main_mkl.cu $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/mkl.x
 
+newCUDA: all $(SAMPLE_DIR)/read.cpp
+	@$(NCC) $(NCFLAGS) $(SAMPLE_DIR)/read.cpp $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/$(BIN_DIR)/newCUDA.x
+
+evo: all $(ROOT_DIR)/api/evolution.cpp
+	@$(NCC) $(NCFLAGS) $(OBJS_DIR)/*.o $(NCLINKER) -o $(ROOT_DIR)/api/evo.x
+
 all: $(SUBDIRS) $(CUDA_OBJS)
 
 $(SUBDIRS): ECHO
@@ -42,5 +48,6 @@ $(CUDA_OBJS): %.o: $(CUDA_DIR)/src/%.c
 clean:
 	@rm -f $(OBJS_DIR)/*.o
 	@rm -f $(BIN_DIR)/*.x
+	@rm -f $(ROOT_DIR)/api/evo.x
 ########################################################################
 
