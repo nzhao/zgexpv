@@ -62,11 +62,13 @@ GPU_OBJ       := $(CUDAAPI_OBJ) $(EXPOKIT_OBJ) $(GPU_C_OBJ) $(GPU_F_OBJ) $(GPUMA
 
 CPU_OBJ       := $(CUDAAPI_OBJ) $(EXPOKIT_OBJ) $(CPU_C_OBJ) $(CPU_F_OBJ) $(CPUMAIN_OBJ) $(PARAMETER_OBJ)
 
+all: gpu cpu
+
 gpu: $(GPU_OBJ) | $(BIN_DIR)
-	@$(NCC) $(NCFLAGS) $(GPU_OBJ) $(NCLINKER) -o $(BIN_DIR)/gpu.x
+	@$(NCC) $(NCFLAGS) $(GPU_OBJ) $(NCLINKER) -o $(BIN_DIR)/gpu_evolve
 
 cpu: $(CPU_OBJ) | $(BIN_DIR)
-	@$(NCC) $(NCFLAGS) $(CPU_OBJ) $(NCLINKER) -o $(BIN_DIR)/cpu.x
+	@$(NCC) $(NCFLAGS) $(CPU_OBJ) $(NCLINKER) -o $(BIN_DIR)/cpu_evolve
 
 $(GPU_OBJ): | $(OBJ_DIR)
 
