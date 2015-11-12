@@ -8,9 +8,7 @@
 
 using namespace std;
 
-extern"C" {
-void main_mkl_( size_t *nspin, size_t *nTerm, double *coeff_lst, size_t *nbody_lst, size_t *pos_i_idx, size_t *pos_i_lst, size_t *dim_i_lst, size_t *mat_i_idx, std::complex<double> *mat_i_lst, size_t *ham_dim, size_t *nspin_dim, std::complex<double> *v, size_t *pos_idx, size_t *mat_idx, size_t *k, size_t *tn, double *ta, size_t *m, double *tol, size_t *itrace, std::complex<double> *w_seq, size_t *w_seq_len );
-}
+void cuzkmv( int nspin, int nTerm, double *coeff_lst, size_t *nbody_lst, size_t *pos_i_idx, size_t *pos_i_lst, size_t *dim_i_lst, size_t *mat_i_idx, std::complex<double> *mat_i_lst, size_t vlen, size_t *nspin_dim, std::complex<double> *v, size_t pos_idx, size_t mat_idx, std::complex<double> *w );
 
 int main()
 {
@@ -21,17 +19,8 @@ int main()
   size_t  numbering_base      = 1;
   
   //  data output;
-  char    output_name[]       = "../../data/output_mkl.dat";
-  size_t  w_seq_len;
-  std::complex<double> *w_seq;
-  
-  //  Lanczos factorization length;
-  size_t  klim                = 10;
-  
-  //  zgexpv coefficients;
-  size_t  m                   = 30;
-  double  tol                 = 1.0e-12;
-  size_t  itrace              = 0;
+  char    output_name[]       = "../../data/output_cuda.dat";
+  std::complex<double> *w;
   
 //======================================================================
 // hamvec_read
@@ -222,30 +211,25 @@ int main()
   fclose( fp );
 //======================================================================
   
-  w_seq_len = ham_dim * tn;
-  w_seq = new std::complex<double> [w_seq_len];
+  w = new std::complex<double> [ ham_dim ];
   
-  // expokit in FORTRAN;
-  main_mkl_( &nspin, &nTerm, coeff_lst, nbody_lst, pos_i_idx, pos_i_lst, dim_i_lst, mat_i_idx, mat_i_lst, &ham_dim, nspin_dim, v, &pos_idx, &mat_idx, &klim, &tn, ta, &m, &tol, &itrace, w_seq, &w_seq_len );
+  // cuzkmv in cuda;
+  cuzkmv( nspin, nTerm, coeff_lst, nbody_lst, pos_i_idx, pos_i_lst, dim_i_lst, mat_i_idx, mat_i_lst, ham_dim, nspin_dim, v, pos_idx, mat_idx, w );
   
   // output to data file;
-  double * w_seq_dble;
-  w_seq_dble = new double [ w_seq_len ];
+  double * w_dble;
+  w_dble = new double [ ham_dim ];
   fp = fopen( output_name, "wb" );
   if ( fwrite( &ham_dim, sizeof(ham_dim), 1, fp ) != 1 )
     std::cout << "file read error: ham_dim" << std::endl;
-  if ( fwrite( &tn, sizeof(tn), 1, fp ) != 1 )
-    std::cout << "file read error: tn" << std::endl;
-  if ( fwrite( ta, sizeof(ta[0]), tn, fp ) != tn )
-    std::cout << "file read error: ta" << std::endl;
-  for ( i = 0; i < w_seq_len; i++ )
-    w_seq_dble[i] = w_seq[i].real();
-  if ( fwrite( w_seq_dble, sizeof(w_seq_dble[0]), w_seq_len, fp ) != w_seq_len )
-    std::cout << "file read error: w_seq.real" << std::endl;
-  for ( i = 0; i < w_seq_len; i++ )
-    w_seq_dble[i] = w_seq[i].imag();
-  if ( fwrite( w_seq_dble, sizeof(w_seq_dble[0]), w_seq_len, fp ) != w_seq_len )
-    std::cout << "file read error: w_seq.imag" << std::endl;
+  for ( i = 0; i < ham_dim; i++ )
+    w_dble[i] = w[i].real();
+  if ( fwrite( w_dble, sizeof(w_dble[0]), ham_dim, fp ) != ham_dim )
+    std::cout << "file read error: w.real" << std::endl;
+  for ( i = 0; i < ham_dim; i++ )
+    w_dble[i] = w[i].imag();
+  if ( fwrite( w_dble, sizeof(w_dble[0]), ham_dim, fp ) != ham_dim )
+    std::cout << "file read error: w.imag" << std::endl;
   fclose( fp );
   
   return 0;
