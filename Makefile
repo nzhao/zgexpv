@@ -50,15 +50,6 @@ GPU_OBJ       := $(CUDAAPI_OBJ) $(EXPOKIT_OBJ) $(GPU_C_OBJ) $(GPU_F_OBJ) $(OBJ_D
 
 CPU_OBJ       := $(CUDAAPI_OBJ) $(EXPOKIT_OBJ) $(CPU_C_OBJ) $(CPU_F_OBJ) $(OBJ_DIR)/evolution_cpu.o $(OBJ_DIR)/para.o
 
-echo: $(OBJ_DIR)/cusparse_fortran.o
-	@echo $(EXPOKIT_SRC)
-	@echo $(EXPOKIT_LIST)
-	@echo $(EXPOKIT_OBJ)
-	@echo $(CUDAAPI_SRC)
-	@echo $(CUDAAPI_LIST)
-	@echo $(CUDAAPI_OBJ)
-	@echo $(GPU_OBJ)
-
 gpu: $(GPU_OBJ) | $(BIN_DIR)
 	@$(NCC) $(NCFLAGS) $(GPU_OBJ) $(NCLINKER) -o $(BIN_DIR)/gpu.x
 
