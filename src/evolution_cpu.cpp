@@ -121,10 +121,6 @@ int engine()
     w_seq_len = nDim * nt;
     w_seq = new complex<double> [w_seq_len];
 
-    cout <<  nSpin<< "\t" << nTerm<< "\t" << nDim<< "\t" << total_nbody<< "\t" << total_dim<< endl;
-    cout << m << "\t"  << tol << "\t"  << itrace << "\t"  << klim << "\t"  << maxThreadsPerBlock << endl;
-
-    cout << maxGridSize[0] <<"\t" <<  maxGridSize[1] << "\t" <<  maxGridSize[2] << endl; 
     // expokit in FORTRAN;
     main_mkl_( &nSpin, &nTerm, coeff_list, nBody_list, pos_offset, pos_list, dim_list, mat_offset, matC, &nDim, spin_dim, vecC, &total_nbody, &total_dim, &klim, &nt, tlist, &m, &tol, &itrace, w_seq, &w_seq_len );
 
