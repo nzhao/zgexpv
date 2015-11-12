@@ -55,8 +55,8 @@
 *
 *---  Set input arguments ...
 *      
-      write(*,*) nspin, nTerm, ham_dim, pos_idx, mat_idx, k, tn, m,
-     . w_seq_len
+!      write(*,*) nspin, nTerm, ham_dim, pos_idx, mat_idx, k, tn, m,
+!     . w_seq_len
       n = ham_dim;
       
       lwsp = n*(mmax+2)+5*(mmax+2)**2+7
